@@ -20,7 +20,7 @@ library(dplyr)
 ```
 
 ```{r}
-HourlyData <- read_excel("~/ZhouKagiliery_ENV797_TSA_Competition_S2024/Data/load.xlsx", col_types = c("skip", 
+HourlyData <- read_excel("./Data/load.xlsx", col_types = c("skip", 
     "date", "numeric", "numeric", "numeric", 
     "numeric", "numeric", "numeric", "numeric", 
     "numeric", "numeric", "numeric", "numeric", 
@@ -31,7 +31,7 @@ HourlyData <- read_excel("~/ZhouKagiliery_ENV797_TSA_Competition_S2024/Data/load
 
 Dates <-HourlyData[,1]
 
-Loads <- DailyData[,2:25]
+Loads <- HourlyData[,2:25]
 
 Loads <- Loads |>
   mutate(
@@ -55,8 +55,47 @@ AverageDaily %>%
   ggplot(aes(y = DailyAve, x = Date)) +  # Close aes() here
   geom_line()
 ```
+
 ```{r}
 TSDaily <- msts(AverageDaily[,1], start = c(2005, 01, 01), c(7,30,365))
 autoplot(TSDaily)
 ```
 
+```{r message=FALSE, warning=FALSE}
+#create a subset for training purpose
+n_for = 365+181 # remove data in 01/2010 to 06/2011
+TSDaily_train <- subset(TSDaily, end = length(TSDaily)-n_for)
+
+#create a subset for testing purpose
+TSDaily_test <- subset(TSDaily, start = length(TSDaily)-n_for)
+
+autoplot(TSDaily_train)
+autoplot(TSDaily_test)
+```
+
+### Model 1: STL + ETS
+
+```{r ETS, echo=TRUE, message=FALSE, warning=FALSE}
+#Test the model by comparing data in 2010
+#Fit and forecast STL + ETS model to data
+ETS_fit_test <-  stlf(TSDaily_train,h=365)
+
+#Plot model + observed data
+autoplot(TSDaily) +
+  autolayer(ETS_fit_test, series="STL + ETS",PI=FALSE) +
+  ylab("Active Power")
+
+#re-run
+ETS_fit <-  stlf(TSDaily,h=184)
+autoplot(TSDaily) +
+  autolayer(ETS_fit, series="STL + ETS",PI=FALSE) +
+  ylab("Active Power")
+```
+
+### Output
+```{r output}
+for_dates <- seq(as.Date("2011-07-01"), as.Date("2011-12-31"), by = "day")
+ETS_load <- ETS_fit$mean
+ETS_output <- cbind.data.frame(for_dates, ETS_load)
+write.csv(ETS_output, "ETS_output.csv", row.names = FALSE)
+```
