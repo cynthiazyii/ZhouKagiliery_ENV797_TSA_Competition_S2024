@@ -86,7 +86,7 @@ autoplot(TSDaily) +
   ylab("Active Power")
 
 #re-run
-ETS_fit <-  stlf(TSDaily,h=184)
+ETS_fit <-  stlf(TSDaily,h=31)
 autoplot(TSDaily) +
   autolayer(ETS_fit, series="STL + ETS",PI=FALSE) +
   ylab("Active Power")
@@ -94,8 +94,8 @@ autoplot(TSDaily) +
 
 ### Output
 ```{r output}
-for_dates <- seq(as.Date("2011-07-01"), as.Date("2011-12-31"), by = "day")
-ETS_load <- ETS_fit$mean
-ETS_output <- cbind.data.frame(for_dates, ETS_load)
+date <- seq(as.Date("2011-07-01"), as.Date("2011-07-31"), by = "day")
+load <- ETS_fit$mean
+ETS_output <- cbind.data.frame(date, load)
 write.csv(ETS_output, "ETS_output.csv", row.names = FALSE)
 ```
