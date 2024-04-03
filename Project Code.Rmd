@@ -1,0 +1,62 @@
+---
+title: "Forecasting Competition Attempt 1"
+author: "Julia Kagiliery & Cynthia Zhou"
+output: pdf_document
+---
+
+```{r package, message=FALSE, warning=FALSE}
+library(lubridate)
+library(ggplot2)
+library(forecast)  
+library(Kendall)
+library(tseries)
+library(outliers)
+library(tidyverse)
+library(smooth)
+library(zoo)
+library(kableExtra)
+library(readxl)
+library(dplyr)
+```
+
+```{r}
+HourlyData <- read_excel("~/ZhouKagiliery_ENV797_TSA_Competition_S2024/Data/load.xlsx", col_types = c("skip", 
+    "date", "numeric", "numeric", "numeric", 
+    "numeric", "numeric", "numeric", "numeric", 
+    "numeric", "numeric", "numeric", "numeric", 
+    "numeric", "numeric", "numeric", "numeric", 
+    "numeric", "numeric", "numeric", "numeric", 
+    "numeric", "numeric", "numeric", "numeric", 
+    "numeric"))
+
+Dates <-HourlyData[,1]
+
+Loads <- DailyData[,2:25]
+
+Loads <- Loads |>
+  mutate(
+    DailyAverage = rowMeans(across(everything())))
+
+AverageDaily <- cbind(Loads, Dates$date)
+
+AverageDaily <- AverageDaily[,25:26] 
+
+colnames(AverageDaily) <- c("DailyAve", "Date")
+
+view(AverageDaily)
+```
+
+This is not the best way to do it but AverageDaily data set contains the average of the 24 hours (column name = DailyAve) and the date (titled "Date").
+
+Code inspiration: https://www.geeksforgeeks.org/calculate-the-mean-of-each-row-of-an-object-in-r-programming-rowmeans-function/
+
+```{r}
+AverageDaily %>%
+  ggplot(aes(y = DailyAve, x = Date)) +  # Close aes() here
+  geom_line()
+```
+```{r}
+TSDaily <- msts(AverageDaily[,1], start = c(2005, 01, 01), c(7,30,365))
+autoplot(TSDaily)
+```
+
