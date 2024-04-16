@@ -78,7 +78,7 @@ autoplot(TSDaily_test)
 ```{r ETS, echo=TRUE, message=FALSE, warning=FALSE}
 #Test the model by comparing data in 2010
 #Fit and forecast STL + ETS model to data
-ETS_fit_test <-  stlf(TSDaily_train,h=365)
+ETS_fit_test <-  stlf(TSDaily_train, h=365+181)
 
 #Plot model + observed data
 autoplot(TSDaily) +
