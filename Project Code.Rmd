@@ -98,33 +98,37 @@ ETS_output <- cbind.data.frame(date, load)
 write.csv(ETS_output, "ETS_output.csv", row.names = FALSE)
 ```
 
-###Model 2: SARIMA()
+###Model 2: TBATS()
+
+```{r}
+frequency(FullTSTest)
+```
 
 
 ```{r, echo=FALSE}
-#SARIMA autofit
-TSDaily_train <- ts(TSDaily_train)
-sarima_model <- auto.arima(TSDaily_train)
-print(summary(sarima_model))
+#TBATS autofit
+FullTSTest <- na.approx(TSDaily_train)
+tbats_model <- tbats(FullTSTest)
+print(summary(tbats_model))
 ```
 
 ```{r}
-checkresiduals(sarima_model)
+checkresiduals(tbats_model)
 ```
 
 ```{r}
-h <- length(TSDaily_test)
-sarima_forecast <- forecast(sarima_model, h = h)
+h = length(TSDaily_test)
+TBATS_forecast <- forecast(tbats_model, h = h)
 ```
 
 ```{r}
 autoplot(TSDaily_train, series = "Original") +
-  autolayer(sarima_forecast, series = "SARIMA forecast") +
+  autolayer(TBATS_forecast, series = "TBATS forecast") +
   autolayer(TSDaily_test, series = "Test") +
-  ggtitle("SARIMA modeling")
+  ggtitle("TBATS modeling")
 ```
 
 ```{r}
-forecast_accuracySarima <- accuracy(sarima_forecast)
-print(forecast_accuracySarima)
+forecast_accuracyTBATS <- accuracy(TBATS_forecast)
+print(forecast_accuracyTBATS)
 ```
