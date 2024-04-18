@@ -42,8 +42,6 @@ AverageDaily <- cbind(Loads, Dates$date)
 AverageDaily <- AverageDaily[,25:26] 
 
 colnames(AverageDaily) <- c("DailyAve", "Date")
-
-view(AverageDaily)
 ```
 
 This is not the best way to do it but AverageDaily data set contains the average of the 24 hours (column name = DailyAve) and the date (titled "Date").
@@ -98,4 +96,35 @@ date <- seq(as.Date("2011-07-01"), as.Date("2011-07-31"), by = "day")
 load <- ETS_fit$mean
 ETS_output <- cbind.data.frame(date, load)
 write.csv(ETS_output, "ETS_output.csv", row.names = FALSE)
+```
+
+###Model 2: SARIMA()
+
+
+```{r, echo=FALSE}
+#SARIMA autofit
+TSDaily_train <- ts(TSDaily_train)
+sarima_model <- auto.arima(TSDaily_train)
+print(summary(sarima_model))
+```
+
+```{r}
+checkresiduals(sarima_model)
+```
+
+```{r}
+h <- length(TSDaily_test)
+sarima_forecast <- forecast(sarima_model, h = h)
+```
+
+```{r}
+autoplot(TSDaily_train, series = "Original") +
+  autolayer(sarima_forecast, series = "SARIMA forecast") +
+  autolayer(TSDaily_test, series = "Test") +
+  ggtitle("SARIMA modeling")
+```
+
+```{r}
+forecast_accuracySarima <- accuracy(sarima_forecast)
+print(forecast_accuracySarima)
 ```
