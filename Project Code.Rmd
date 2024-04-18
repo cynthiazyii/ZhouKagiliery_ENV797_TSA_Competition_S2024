@@ -144,7 +144,6 @@ autoplot(TSDaily) +
 
 ```
 
-
 ### Performance check
 ```{r warning=FALSE}
 
