@@ -89,13 +89,13 @@ autoplot(TSDaily) +
 
 ###Model 2: TBATS()
 ```{r TBATS, echo=TRUE, message=FALSE, warning=FALSE}
-TBATS_test <- tbats(TSDaily_train)
+TSDaily_trainNA<-na.approx(TSDaily_train)
+TBATS_test <- tbats(TSDaily_trainNA)
 TBATS_for <- forecast(TBATS_test, h=n_for)
 #Plot model + observed data
 autoplot(TSDaily) +
   autolayer(TBATS_for, series="TBATS test",PI=FALSE) +
   ylab("load")
-
 ```
 
 Model 3: ARIMA + FOURIER terms
@@ -183,7 +183,8 @@ ETS_output <- cbind.data.frame(date, load1)
 write.csv(ETS_output, "ETS_output.csv", row.names = FALSE)
 
 #TBATS
-TBATS_for <- tbats(TSDaily)
+TSDailyNA <- na.approx(TSDaily)
+TBATS_for <- tbats(TSDailyNA)
 TBATS_fit <- forecast(TBATS_for, h=31)
 load2 <- TBATS_fit$mean
 TBATS_output <- cbind.data.frame(date, load2)
