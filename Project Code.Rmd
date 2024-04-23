@@ -43,7 +43,6 @@ AverageDaily <- AverageDaily[,25:26]
 
 colnames(AverageDaily) <- c("DailyAve", "Date")
 
-view(AverageDaily)
 ```
 
 This is not the best way to do it but AverageDaily data set contains the average of the 24 hours (column name = DailyAve) and the date (titled "Date").
@@ -216,4 +215,39 @@ NN_for <- forecast(NN_fit, h=31,xreg=fourier(TSDaily,
 load4 <- NN_for$mean
 NN_output <- cbind.data.frame(date, load4)
 write.csv(NN_output, "NN_output.csv", row.names = FALSE)
+
+#ETS take 2
+ETS_fit1 <-  stlf(TSDailyNA,h=31)
+loadA <- ETS_fit1$mean
+ETS_output1 <- cbind.data.frame(date, loadA)
+write.csv(ETS_output1, "ETS_output.csv", row.names = FALSE)
+
+
+#TBATS but a bit better
+TSDailyNA <- na.approx(TSDaily, na.rm = FALSE, maxgap = Inf, rule = 2)
+TBATS_for <- tbats(TSDailyNA, use.box.cox = FALSE, use.trend = TRUE, use.parallel = TRUE)
+TBATS_fit <- forecast(TBATS_for, h = 31, level = c(80, 95), fan = TRUE)
+
+load2 <- TBATS_fit$mean
+TBATS_output <- cbind.data.frame(date, load2)
+write.csv(TBATS_output, "TBATS_outputA.csv", row.names = FALSE)
+
+#more specific ETS
+ETS_fit1 <- stlf(TSDaily, h = 31, method = "ets", s.window = "periodic", robust = TRUE)
+loadB <- ETS_fit1$mean
+ETS_output <- data.frame(date, loadB)
+write.csv(ETS_output, "ETS_output.csv2", row.names = FALSE)
+
+#Missing Values NN?
+date <- seq(as.Date("2011-07-01"), as.Date("2011-07-31"), by = "day")
+NN_fit <- nnetar(TSDaily,
+                 p = 2,
+                 P = 2,
+                 xreg = fourier(TSDaily, K = c(3, 12)))  
+NN_for <- forecast(NN_fit, h = 31, xreg = fourier(TSDaily, K = c(3, 12), h = 31))  
+load4 <- NN_for$mean
+NN_output <- cbind.data.frame(date = date, load4)
+write.csv(NN_output, "NN_output2.csv", row.names = FALSE)
 ```
+
+
